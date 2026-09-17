@@ -1,0 +1,4 @@
+Demographic Group,Sample Count,Base Readmit Rate (%),Selection Rate (%),Recall / TPR (%),False Positive Rate (%),Precision (%),ROC-AUC
+> 70 years,8929,12.01,9.64,18.38,8.45,22.88,0.626
+50 - 70 years,7801,10.74,9.32,20.64,7.96,23.8,0.663
+< 50 years,3281,11.28,12.56,30.81,10.24,27.67,0.714

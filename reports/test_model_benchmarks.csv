@@ -1,0 +1,5 @@
+threshold,accuracy,precision,recall,f1_score,roc_auc,pr_auc,brier_score,true_negatives,false_positives,false_negatives,true_positives,total_samples,base_rate,model_name
+0.5,0.8861,0.0,0.0,0.0,0.5,0.1139,0.1139,17731,0,2280,0,20011,11.39,Majority_Class_Baseline
+0.5,0.651,0.1742,0.5518,0.2648,0.6453,0.1992,0.2284,11769,5962,1022,1258,20011,11.39,Logistic_Regression
+0.5,0.7065,0.193,0.4952,0.2777,0.6576,0.203,0.2047,13009,4722,1151,1129,20011,11.39,Random_Forest
+0.5,0.8861,0.0,0.0,0.0,0.6572,0.2054,0.0973,17731,0,2280,0,20011,11.39,Calibrated_Random_Forest

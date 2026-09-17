@@ -1,0 +1,6 @@
+Demographic Group,Sample Count,Base Readmit Rate (%),Selection Rate (%),Recall / TPR (%),False Positive Rate (%),Precision (%),ROC-AUC
+Caucasian,14998,11.7,9.85,20.8,8.4,24.71,0.656
+AfricanAmerican,3722,11.1,11.2,22.52,9.79,22.3,0.65
+Hispanic,431,9.05,12.53,35.9,10.2,25.93,0.806
+Other,318,10.06,8.49,18.75,7.34,22.22,0.583
+Asian,123,7.32,6.5,22.22,5.26,25.0,0.657

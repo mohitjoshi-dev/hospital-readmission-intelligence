@@ -1,0 +1,35 @@
+# Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+
+# Secrets & Environment Variables (Never commit secrets)
+.env
+.env.local
+.streamlit/secrets.toml
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Raw Healthcare Dataset Files (Must NOT be committed)
+raw/*.csv
+data/raw/*.csv
+data/processed/*.csv
+
+# Local Model Artifacts (Trained locally)
+models/*.joblib
+
+# OS & Editor Specific Files
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

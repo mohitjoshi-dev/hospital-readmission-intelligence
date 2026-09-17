@@ -1,0 +1,3 @@
+Demographic Group,Sample Count,Base Readmit Rate (%),Selection Rate (%),Recall / TPR (%),False Positive Rate (%),Precision (%),ROC-AUC
+Female,10606,10.81,10.04,20.33,8.79,21.88,0.658
+Male,9405,12.06,9.94,22.13,8.27,26.84,0.658
