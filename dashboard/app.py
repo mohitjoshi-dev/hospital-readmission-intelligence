@@ -22,6 +22,23 @@ import pandas as pd
 import seaborn as sns
 import streamlit as st
 
+# Configure Matplotlib dark theme to match application palette
+plt.rcParams.update({
+    "figure.facecolor": "#111827",
+    "axes.facecolor": "#111827",
+    "axes.edgecolor": "#1E293B",
+    "axes.labelcolor": "#94A3B8",
+    "xtick.color": "#94A3B8",
+    "ytick.color": "#94A3B8",
+    "text.color": "#F8FAFC",
+    "grid.color": "#1E293B",
+    "grid.linestyle": "--",
+    "grid.alpha": 0.5,
+    "figure.autolayout": True,
+    "font.family": "sans-serif",
+    "font.sans-serif": ["Inter", "DejaVu Sans", "Arial"],
+})
+
 from src.llm_assistant import (
     OFFLINE_SUGGESTED_ANSWERS,
     compile_verified_analytical_context,
@@ -40,45 +57,222 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+    /* Global Typography */
+    html, body, [class*="css"], .stMarkdown, p, div, span, label, input, button, select {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: #CBD5E1;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-weight: 700 !important;
+        color: #F8FAFC !important;
+        letter-spacing: -0.02em;
+    }
+
+    /* Container Backgrounds */
+    .stApp {
+        background-color: #0B0F14;
+        color: #CBD5E1;
+    }
+
+    [data-testid="stSidebar"] {
+        background-color: #0D131C;
+        border-right: 1px solid #1E293B;
+    }
+
+    /* Main Page Titles */
     .main-title {
-        font-size: 2.2rem;
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-size: 2.35rem;
         font-weight: 700;
-        color: #1E3A8A;
-        margin-bottom: 0.2rem;
+        color: #F8FAFC !important;
+        letter-spacing: -0.025em;
+        line-height: 1.2;
+        margin-bottom: 0.4rem;
+        padding-bottom: 0.55rem;
+        border-bottom: 2px solid;
+        border-image: linear-gradient(90deg, #38BDF8 0%, #22D3EE 35%, transparent 80%) 1;
     }
+
     .sub-title {
-        font-size: 1.05rem;
-        color: #4B5563;
-        margin-bottom: 1.2rem;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.98rem;
+        color: #94A3B8;
+        line-height: 1.55;
+        margin-top: 0.35rem;
+        margin-bottom: 1.5rem;
     }
+
+    /* Column flex alignment for responsive equal-height cards */
+    [data-testid="column"] {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    [data-testid="column"] > div {
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    /* KPI Metric Cards */
+    [data-testid="stMetric"] {
+        background-color: #111827 !important;
+        border: 1px solid #1E293B !important;
+        border-radius: 8px !important;
+        padding: 12px 12px !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3) !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        height: 100% !important;
+        min-height: 128px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        box-sizing: border-box !important;
+    }
+
+    [data-testid="stMetric"]:hover {
+        border-color: #38BDF8 !important;
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.15) !important;
+    }
+
+    /* Prevent truncation on Metric Labels */
+    [data-testid="stMetricLabel"],
+    [data-testid="stMetricLabel"] > div,
+    [data-testid="stMetricLabel"] label,
+    [data-testid="stMetricLabel"] p {
+        color: #94A3B8 !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.80rem !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.01em !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
+        line-height: 1.25 !important;
+        min-height: 2.2em !important;
+        height: auto !important;
+    }
+
+    /* Metric Value */
+    [data-testid="stMetricValue"],
+    [data-testid="stMetricValue"] > div {
+        color: #F8FAFC !important;
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 1.55rem !important;
+        letter-spacing: -0.02em !important;
+        white-space: nowrap !important;
+        line-height: 1.2 !important;
+        margin: 4px 0 !important;
+        overflow: visible !important;
+    }
+
+    /* Prevent cutoff on Delta / Supporting Badge */
+    [data-testid="stMetricDelta"] {
+        color: #38BDF8 !important;
+        background-color: rgba(56, 189, 248, 0.08) !important;
+        border: 1px solid rgba(56, 189, 248, 0.2) !important;
+        border-radius: 4px !important;
+        padding: 2px 6px !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.74rem !important;
+        font-weight: 500 !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        line-height: 1.25 !important;
+        margin-top: 4px !important;
+        width: fit-content !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    [data-testid="stMetricDelta"] > div {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
+        line-height: 1.25 !important;
+        max-width: 100% !important;
+    }
+
+    [data-testid="stMetricDelta"] svg {
+        display: none !important;
+    }
+
+    /* Custom Cards */
     .metric-card {
-        background-color: #F8FAFC;
-        border: 1px solid #E2E8F0;
+        background-color: #111827;
+        border: 1px solid #1E293B;
         border-radius: 8px;
         padding: 16px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
     }
+
+    /* Operational Governance / Disclaimer Box */
     .disclaimer-box {
-        background-color: #FEF3C7;
-        border-left: 5px solid #F59E0B;
+        background: rgba(23, 23, 23, 0.75);
+        border: 1px solid #332617;
+        border-left: 4px solid #F59E0B;
         padding: 14px 18px;
-        border-radius: 4px;
-        margin-bottom: 20px;
-        font-size: 0.92rem;
-        color: #92400E;
+        border-radius: 6px;
+        margin-bottom: 24px;
+        font-size: 0.88rem;
+        color: #FDE68A;
+        line-height: 1.5;
+        backdrop-filter: blur(8px);
     }
-    .sidebar-header {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #0F172A;
-        line-height: 1.3;
-        margin-top: 10px;
-        margin-bottom: 2px;
+
+    .disclaimer-box strong {
+        color: #FBBF24;
     }
-    .sidebar-sub {
-        font-size: 0.85rem;
-        color: #64748B;
-        margin-bottom: 20px;
+
+    /* Sidebar Navigation Typography */
+    [data-testid="stSidebar"] [data-testid="stRadio"] label {
+        font-family: 'Inter', sans-serif !important;
+        color: #CBD5E1 !important;
+        font-size: 0.92rem !important;
+        font-weight: 500 !important;
+    }
+
+    /* Inputs, Selectboxes, and Sliders */
+    .stTextInput input, .stSelectbox [data-baseweb="select"] {
+        background-color: #111827 !important;
+        border-color: #1E293B !important;
+        color: #F8FAFC !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+
+    /* DataFrames */
+    [data-testid="stDataFrame"] {
+        border: 1px solid #1E293B;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    /* Buttons */
+    .stButton > button {
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        transition: all 0.2s ease !important;
+    }
+
+    /* Section Dividers */
+    hr {
+        border-color: #1E293B !important;
+        margin-top: 1.5rem !important;
+        margin-bottom: 1.5rem !important;
     }
     </style>
     """,
@@ -141,13 +335,17 @@ benchmarks_df, cv_df, curve_data, capacity_data, shap_df, queue_df, fairness_dat
 # Sidebar: Professional Header (No broken image)
 st.sidebar.markdown(
     """
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <div style="background-color: #2563EB; color: white; border-radius: 6px; padding: 6px 10px; font-weight: bold; font-size: 1.2rem;">
-            🏥 HRI
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid #1E293B;">
+        <div style="width: 44px; height: 44px; min-width: 44px; border-radius: 8px; background: rgba(17, 24, 39, 0.85); border: 1px solid #38BDF8; box-shadow: 0 0 12px rgba(56, 189, 248, 0.25); display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.05rem; color: #F8FAFC; letter-spacing: 0.05em;">
+            HRI
         </div>
         <div>
-            <div class="sidebar-header">Hospital Readmission<br/>Intelligence</div>
-            <div class="sidebar-sub">Operational Healthcare Analytics</div>
+            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: #F8FAFC; line-height: 1.15; letter-spacing: -0.02em;">
+                Hospital Readmission<br/><span style="color: #38BDF8;">Intelligence</span>
+            </div>
+            <div style="font-family: 'Inter', sans-serif; font-size: 13px; color: #94A3B8; margin-top: 4px; font-weight: 400;">
+                Operational Healthcare Analytics
+            </div>
         </div>
     </div>
     """,
@@ -212,9 +410,9 @@ if nav_selection == "1. Executive Overview":
         fig, ax = plt.subplots(figsize=(4, 3))
         labels = ["No Early Readmission\n(NO or >30d)", "Early Readmission\n(<30d)"]
         sizes = [88754, 11357]
-        colors = ["#94A3B8", "#EF4444"]
+        colors = ["#334155", "#EF4444"]
         wedges, texts, autotexts = ax.pie(
-            sizes, labels=labels, autopct="%1.1f%%", startangle=140, colors=colors, textprops=dict(color="black", size=9)
+            sizes, labels=labels, autopct="%1.1f%%", startangle=140, colors=colors, textprops=dict(color="#F8FAFC", size=9)
         )
         ax.axis("equal")
         st.pyplot(fig)
@@ -226,7 +424,7 @@ if nav_selection == "1. Executive Overview":
         age_labels = ["[0-10)", "[10-20)", "[20-30)", "[30-40)", "[40-50)", "[50-60)", "[60-70)", "[70-80)", "[80-90)", "[90-100)"]
         # Real counts from cleaned cohort
         age_counts = [156, 680, 1632, 3724, 9534, 17094, 22170, 25178, 16867, 3076]
-        ax.bar(age_labels, age_counts, color="#3B82F6")
+        ax.bar(age_labels, age_counts, color="#38BDF8")
         ax.set_xticklabels(age_labels, rotation=45, ha="right", fontsize=8)
         ax.set_ylabel("Encounters", fontsize=8)
         ax.grid(axis="y", linestyle="--", alpha=0.3)
@@ -238,7 +436,7 @@ if nav_selection == "1. Executive Overview":
         fig, ax = plt.subplots(figsize=(4, 3))
         los_days = list(range(1, 15))
         los_counts = [14068, 17036, 17565, 13783, 9845, 7378, 5752, 4310, 2981, 2307, 1819, 1422, 1009, 836]
-        ax.bar(los_days, los_counts, color="#10B981")
+        ax.bar(los_days, los_counts, color="#0284C7")
         ax.set_xlabel("Days in Hospital", fontsize=8)
         ax.set_ylabel("Encounters", fontsize=8)
         ax.grid(axis="y", linestyle="--", alpha=0.3)
@@ -252,11 +450,11 @@ if nav_selection == "1. Executive Overview":
         fig, ax = plt.subplots(figsize=(4, 3))
         inpatient_groups = ["0 Visits", "1 Visit", "2+ Visits"]
         rates = [9.5, 19.8, 28.4]
-        bars = ax.bar(inpatient_groups, rates, color=["#60A5FA", "#F59E0B", "#DC2626"])
+        bars = ax.bar(inpatient_groups, rates, color=["#38BDF8", "#F59E0B", "#EF4444"])
         ax.set_ylabel("30-Day Readmission Rate (%)", fontsize=8)
         ax.set_ylim(0, 35)
         for bar, rate in zip(bars, rates):
-            ax.text(bar.get_x() + bar.get_width() / 2, rate + 1, f"{rate}%", ha="center", fontsize=8, fontweight="bold")
+            ax.text(bar.get_x() + bar.get_width() / 2, rate + 1, f"{rate}%", ha="center", fontsize=8, fontweight="bold", color="#F8FAFC")
         ax.grid(axis="y", linestyle="--", alpha=0.3)
         st.pyplot(fig)
         st.caption("Patients with ≥2 prior inpatient admissions had an observed 3x higher readmission rate.")
@@ -266,7 +464,7 @@ if nav_selection == "1. Executive Overview":
         fig, ax = plt.subplots(figsize=(4, 3))
         diag_names = ["Circulatory", "Other", "Respiratory", "Digestive", "Diabetes", "Injury", "Genitourinary", "Musculoskeletal", "Neoplasms"]
         diag_pcts = [29.9, 16.2, 14.2, 9.3, 8.6, 6.9, 5.0, 4.9, 3.4]
-        ax.barh(diag_names[::-1], diag_pcts[::-1], color="#8B5CF6")
+        ax.barh(diag_names[::-1], diag_pcts[::-1], color="#818CF8")
         ax.set_xlabel("% of Inpatient Cohort", fontsize=8)
         ax.grid(axis="x", linestyle="--", alpha=0.3)
         st.pyplot(fig)
@@ -277,11 +475,11 @@ if nav_selection == "1. Executive Overview":
         fig, ax = plt.subplots(figsize=(4, 3))
         model_names = ["Baseline", "Logistic Reg", "Random Forest"]
         pr_aucs = [0.1139, 0.1992, 0.2054]
-        bars = ax.bar(model_names, pr_aucs, color=["#CBD5E1", "#38BDF8", "#0284C7"])
+        bars = ax.bar(model_names, pr_aucs, color=["#475569", "#38BDF8", "#0284C7"])
         ax.set_ylabel("PR-AUC (Avg Precision)", fontsize=8)
         ax.set_ylim(0, 0.26)
         for bar, val in zip(bars, pr_aucs):
-            ax.text(bar.get_x() + bar.get_width() / 2, val + 0.008, f"{val:.3f}", ha="center", fontsize=8, fontweight="bold")
+            ax.text(bar.get_x() + bar.get_width() / 2, val + 0.008, f"{val:.3f}", ha="center", fontsize=8, fontweight="bold", color="#F8FAFC")
         ax.grid(axis="y", linestyle="--", alpha=0.3)
         st.pyplot(fig)
         st.caption("Calibrated Random Forest achieved 0.2054 PR-AUC on held-out test data (Brier: 0.0973).")
@@ -300,10 +498,16 @@ elif nav_selection == "2. Data Quality":
     # Pipeline Flow Visual
     st.markdown(
         """
-        <div style="background-color: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 14px; margin-bottom: 20px;">
-            <div style="font-weight: bold; color: #1E40AF; margin-bottom: 6px;">Data Processing Stages:</div>
-            <div style="font-family: monospace; font-size: 0.95rem; color: #1E3A8A;">
-                [RAW EHR DATA: 101,766 rows] ➔ [COHORT FILTERING: Exclude Expired & Invalid] ➔ [CLEANED COHORT: 100,111 rows] ➔ [PATIENT-GROUPED 80/20 SPLIT: Zero Leakage]
+        <div style="background-color: #111827; border: 1px solid #1E293B; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; color: #38BDF8; margin-bottom: 8px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Data Processing Architecture</div>
+            <div style="font-family: 'Inter', monospace; font-size: 0.88rem; color: #F8FAFC; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                <span style="background: #1E293B; padding: 4px 10px; border-radius: 4px; border: 1px solid #334155;">RAW EHR DATA: 101,766 rows</span>
+                <span style="color: #38BDF8;">➔</span>
+                <span style="background: #1E293B; padding: 4px 10px; border-radius: 4px; border: 1px solid #334155;">COHORT FILTERING: Exclude Expired &amp; Invalid</span>
+                <span style="color: #38BDF8;">➔</span>
+                <span style="background: #1E293B; padding: 4px 10px; border-radius: 4px; border: 1px solid #334155;">CLEANED COHORT: 100,111 rows</span>
+                <span style="color: #38BDF8;">➔</span>
+                <span style="background: #1E293B; padding: 4px 10px; border-radius: 4px; border: 1px solid #38BDF8; color: #38BDF8; font-weight: 600;">PATIENT-GROUPED 80/20 SPLIT: Zero Leakage</span>
             </div>
         </div>
         """,
@@ -369,7 +573,7 @@ elif nav_selection == "3. Cohort & Encounter Analytics":
         fig, ax = plt.subplots(figsize=(4, 3))
         races = ["Caucasian", "AfricanAmerican", "Missing (?)", "Hispanic", "Other", "Asian"]
         race_counts = [75099, 19100, 2271, 2031, 1495, 641]
-        ax.bar(races, race_counts, color="#3B82F6")
+        ax.bar(races, race_counts, color="#38BDF8")
         ax.set_xticklabels(races, rotation=35, ha="right", fontsize=8)
         ax.grid(axis="y", linestyle="--", alpha=0.3)
         st.pyplot(fig)
@@ -380,7 +584,7 @@ elif nav_selection == "3. Cohort & Encounter Analytics":
         fig, ax = plt.subplots(figsize=(4, 3))
         genders = ["Female", "Male"]
         g_counts = [53820, 46291]
-        ax.pie(g_counts, labels=genders, autopct="%1.1f%%", startangle=90, colors=["#EC4899", "#3B82F6"])
+        ax.pie(g_counts, labels=genders, autopct="%1.1f%%", startangle=90, colors=["#F43F5E", "#38BDF8"], textprops=dict(color="#F8FAFC", size=9))
         st.pyplot(fig)
         st.caption("Observation: Female encounters comprised 53.8% of the cohort.")
 
@@ -404,7 +608,7 @@ elif nav_selection == "3. Cohort & Encounter Analytics":
         st.markdown("**Number of Medications Administered**")
         fig, ax = plt.subplots(figsize=(4, 3))
         # Simulated histogram based on real mean 16.0, std 8.1
-        ax.hist(np.random.RandomState(42).normal(16.0, 8.1, 10000).clip(1, 81), bins=20, color="#6366F1", edgecolor="white")
+        ax.hist(np.random.RandomState(42).normal(16.0, 8.1, 10000).clip(1, 81), bins=20, color="#6366F1", edgecolor="#1E293B")
         ax.set_xlabel("Medications Count", fontsize=8)
         ax.grid(axis="y", linestyle="--", alpha=0.3)
         st.pyplot(fig)
@@ -416,7 +620,7 @@ elif nav_selection == "3. Cohort & Encounter Analytics":
         diag_counts = list(range(1, 17))
         # Distribution peaks at 9 (maximum recorded in EHR)
         sample_diag = [218, 1003, 1345, 2390, 4390, 7500, 10400, 12800, 49000, 2000, 1800, 1500, 1400, 1200, 1100, 965]
-        ax.bar(diag_counts, sample_diag, color="#14B8A6")
+        ax.bar(diag_counts, sample_diag, color="#22D3EE")
         ax.set_xlabel("Recorded Diagnoses", fontsize=8)
         ax.grid(axis="y", linestyle="--", alpha=0.3)
         st.pyplot(fig)
@@ -457,11 +661,11 @@ elif nav_selection == "4. Readmission Analysis":
         fig, ax = plt.subplots(figsize=(5, 3.2))
         categories = ["0 Prior Inpatient", "1 Prior Inpatient", "2 Prior Inpatient", "3+ Prior Inpatient"]
         rates = [9.5, 19.8, 26.2, 33.1]
-        bars = ax.bar(categories, rates, color=["#3B82F6", "#F59E0B", "#EF4444", "#991B1B"])
+        bars = ax.bar(categories, rates, color=["#38BDF8", "#F59E0B", "#EF4444", "#991B1B"])
         ax.set_ylabel("Readmission Rate (%)")
         ax.set_ylim(0, 40)
         for b, r in zip(bars, rates):
-            ax.text(b.get_x() + b.get_width() / 2, r + 1, f"{r}%", ha="center", fontweight="bold")
+            ax.text(b.get_x() + b.get_width() / 2, r + 1, f"{r}%", ha="center", fontweight="bold", color="#F8FAFC")
         ax.grid(axis="y", linestyle="--", alpha=0.3)
         st.pyplot(fig)
         st.markdown(
@@ -478,7 +682,7 @@ elif nav_selection == "4. Readmission Analysis":
         ax.set_ylabel("Readmission Rate (%)")
         ax.set_ylim(0, 20)
         for b, r in zip(bars, rates):
-            ax.text(b.get_x() + b.get_width() / 2, r + 0.6, f"{r}%", ha="center", fontweight="bold")
+            ax.text(b.get_x() + b.get_width() / 2, r + 0.6, f"{r}%", ha="center", fontweight="bold", color="#F8FAFC")
         ax.grid(axis="y", linestyle="--", alpha=0.3)
         st.pyplot(fig)
         st.markdown(
@@ -495,11 +699,11 @@ elif nav_selection == "4. Readmission Analysis":
         fig, ax = plt.subplots(figsize=(5, 3.2))
         adm_names = ["Emergency", "Urgent", "Elective", "Trauma"]
         adm_rates = [12.4, 11.0, 9.2, 10.5]
-        bars = ax.bar(adm_names, adm_rates, color="#6366F1")
+        bars = ax.bar(adm_names, adm_rates, color="#38BDF8")
         ax.set_ylabel("Readmission Rate (%)")
         ax.set_ylim(0, 16)
         for b, r in zip(bars, adm_rates):
-            ax.text(b.get_x() + b.get_width() / 2, r + 0.5, f"{r}%", ha="center", fontweight="bold")
+            ax.text(b.get_x() + b.get_width() / 2, r + 0.5, f"{r}%", ha="center", fontweight="bold", color="#F8FAFC")
         ax.grid(axis="y", linestyle="--", alpha=0.3)
         st.pyplot(fig)
         st.markdown("**Observation**: Emergency admissions showed a 35% higher relative readmission frequency than planned Elective admissions.")
@@ -509,11 +713,11 @@ elif nav_selection == "4. Readmission Analysis":
         fig, ax = plt.subplots(figsize=(5, 3.2))
         los_groups = ["1–2 Days", "3–4 Days", "5–7 Days", "8–14 Days"]
         los_rates = [9.7, 11.2, 12.8, 14.5]
-        bars = ax.bar(los_groups, los_rates, color="#06B6D4")
+        bars = ax.bar(los_groups, los_rates, color="#22D3EE")
         ax.set_ylabel("Readmission Rate (%)")
         ax.set_ylim(0, 18)
         for b, r in zip(bars, los_rates):
-            ax.text(b.get_x() + b.get_width() / 2, r + 0.5, f"{r}%", ha="center", fontweight="bold")
+            ax.text(b.get_x() + b.get_width() / 2, r + 0.5, f"{r}%", ha="center", fontweight="bold", color="#F8FAFC")
         ax.grid(axis="y", linestyle="--", alpha=0.3)
         st.pyplot(fig)
         st.markdown("**Observation**: Prolonged hospital stays (>= 8 days) were associated with a 14.5% readmission rate.")
@@ -564,34 +768,34 @@ elif nav_selection == "5. Predictive Modeling":
         with c1:
             st.markdown(f"**ROC Curve (AUC = {curve_data['roc_auc']:.3f})**")
             fig, ax = plt.subplots(figsize=(4, 3.5))
-            ax.plot(curve_data["fpr"], curve_data["tpr"], color="#1E40AF", lw=2, label=f"Calibrated RF ({curve_data['roc_auc']:.3f})")
-            ax.plot([0, 1], [0, 1], color="gray", linestyle="--")
+            ax.plot(curve_data["fpr"], curve_data["tpr"], color="#38BDF8", lw=2.2, label=f"Calibrated RF ({curve_data['roc_auc']:.3f})")
+            ax.plot([0, 1], [0, 1], color="#64748B", linestyle="--")
             ax.set_xlabel("False Positive Rate", fontsize=8)
             ax.set_ylabel("True Positive Rate (Recall)", fontsize=8)
             ax.grid(True, alpha=0.3)
-            ax.legend(fontsize=8)
+            ax.legend(facecolor="#111827", edgecolor="#1E293B", labelcolor="#F8FAFC", fontsize=8)
             st.pyplot(fig)
 
         with c2:
             st.markdown(f"**Precision-Recall Curve (PR-AUC = {curve_data['pr_auc']:.3f})**")
             fig, ax = plt.subplots(figsize=(4, 3.5))
-            ax.plot(curve_data["recall"], curve_data["precision"], color="#047857", lw=2, label="Calibrated RF")
-            ax.axhline(y=0.1139, color="red", linestyle="--", label="Naive Base Rate (11.4%)")
+            ax.plot(curve_data["recall"], curve_data["precision"], color="#22D3EE", lw=2.2, label="Calibrated RF")
+            ax.axhline(y=0.1139, color="#EF4444", linestyle="--", label="Naive Base Rate (11.4%)")
             ax.set_xlabel("Recall", fontsize=8)
             ax.set_ylabel("Precision", fontsize=8)
             ax.grid(True, alpha=0.3)
-            ax.legend(fontsize=8)
+            ax.legend(facecolor="#111827", edgecolor="#1E293B", labelcolor="#F8FAFC", fontsize=8)
             st.pyplot(fig)
 
         with c3:
             st.markdown(f"**Reliability Diagram (Brier = {curve_data['brier_score']:.3f})**")
             fig, ax = plt.subplots(figsize=(4, 3.5))
-            ax.plot(curve_data["prob_pred"], curve_data["prob_true"], marker="o", color="#D97706", lw=2, label="Calibrated Model")
-            ax.plot([0, 1], [0, 1], color="gray", linestyle="--", label="Perfect Calibration")
+            ax.plot(curve_data["prob_pred"], curve_data["prob_true"], marker="o", color="#38BDF8", lw=2.2, label="Calibrated Model")
+            ax.plot([0, 1], [0, 1], color="#64748B", linestyle="--", label="Perfect Calibration")
             ax.set_xlabel("Mean Predicted Probability", fontsize=8)
             ax.set_ylabel("Empirical Positive Fraction", fontsize=8)
             ax.grid(True, alpha=0.3)
-            ax.legend(fontsize=8)
+            ax.legend(facecolor="#111827", edgecolor="#1E293B", labelcolor="#F8FAFC", fontsize=8)
             st.pyplot(fig)
 
 
@@ -870,7 +1074,7 @@ elif nav_selection == "9. About / Methodology":
 st.markdown("---")
 st.markdown(
     """
-    <div style="text-align: center; color: #64748B; font-size: 0.82rem;">
+    <div style="text-align: center; color: #64748B; font-family: 'Inter', sans-serif; font-size: 0.82rem; padding: 12px 0 20px 0;">
         Hospital Readmission Intelligence Platform v1.0.0 | Operational Healthcare Analytics Demonstration | 
         Strict Non-Clinical Governance | Dataset: Strack et al. (1999–2008)
     </div>
